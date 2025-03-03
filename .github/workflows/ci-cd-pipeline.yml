@@ -1,0 +1,36 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Runs when you push to the main branch
+  pull_request:
+    branches:
+      - main  # Runs when a PR is made to main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt  # If your project has dependencies
+
+      - name: Run Tests
+        run: |
+          pytest  # Runs tests if you have any
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Application
+        run: echo "Deployment Step (Modify this as needed!)"
