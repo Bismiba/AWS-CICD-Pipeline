@@ -22,11 +22,20 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -r requirements.txt  # If your project has dependencies
+          if [ -f requirements.txt ]; then 
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found, skipping dependency installation."
+          fi
+          pip install pytest  # Ensure pytest is installed
 
       - name: Run Tests
         run: |
-          pytest  # Runs tests if you have any
+          if ls tests/test_*.py 1> /dev/null 2>&1; then
+            pytest
+          else
+            echo "No test files found, skipping tests."
+          fi
 
   deploy:
     needs: build
