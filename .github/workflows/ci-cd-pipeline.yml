@@ -3,44 +3,43 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - main  # Runs when you push to the main branch
+  pull_request:
+    branches:
+      - main  # Runs when a PR is made to main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: '18'
+          python-version: '3.9'
 
-      - name: Clear npm cache (fixes permission issues)
-        run: npm cache clean --force
-
-      - name: Install dependencies
-        run: npm install
-        env:
-          CI: true  # Prevents interactive prompts
-
-      - name: Increase memory limits (fixes out-of-memory issues)
+      - name: Install Dependencies
         run: |
-          export NODE_OPTIONS="--max-old-space-size=4096"
-          npm run build
+          if [ -f requirements.txt ]; then 
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found, skipping dependency installation."
+          fi
+          pip install pytest  # Ensure pytest is installed
 
-      - name: Run tests (Optional)
-        run: npm test || echo "Tests failed, continuing..."
+      - name: Run Tests
+        run: |
+          if ls tests/test_*.py 1> /dev/null 2>&1; then
+            pytest
+          else
+            echo "No test files found, skipping tests."
+          fi
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Deploy to Render
-        run: curl -X POST "$RENDER_DEPLOY_HOOK"
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - name: Deploy Application
+        run: echo "Deployment Step (Modify this as needed!)"
