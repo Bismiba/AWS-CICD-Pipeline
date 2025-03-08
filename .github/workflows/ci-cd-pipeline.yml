@@ -30,13 +30,16 @@ jobs:
           export NODE_OPTIONS="--max-old-space-size=4096"
           npm run build
 
-      - name: Run tests (Optional: Remove if you have no tests)
+      - name: Run tests (Optional)
         run: npm test || echo "Tests failed, continuing..."
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Deploy to Render
         run: curl -X POST "$RENDER_DEPLOY_HOOK"
         env:
